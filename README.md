@@ -1,6 +1,6 @@
-# Installing JupyterLab
+# LangChain Demo
 
-JupyterLab is an interactive development environment for working with notebooks, code, and data. It is an open source project developed by the Jupyter team.
+A simple LangChain demo project based on JupyterLab.
 
 ## Prerequisites
 
