@@ -1,3 +1,4 @@
 .chroma
 chroma_logs.log
 .ipynb_checkpoints
+.virtual_documents
