@@ -2,3 +2,6 @@
 chroma_logs.log
 .ipynb_checkpoints
 .virtual_documents
+cache
+chroma-collections.parquet
+chroma-embeddings.parquet

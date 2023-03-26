@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir jupyterlab jupyterlab-lsp python-lsp-server
 WORKDIR /app
 
 # Expose port
-EXPOSE 5000
+EXPOSE 8888
 
 # Run Jupyter
-CMD ["python", "qa.py"]
+CMD ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--allow-root"]
