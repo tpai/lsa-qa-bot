@@ -12,10 +12,11 @@ from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBui
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter
-from langchain import OpenAI, VectorDBQA, PromptTemplate
+from langchain import OpenAI, PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.prompts.chat import HumanMessagePromptTemplate
+from langchain.chains import RetrievalQA
 
 def init_tg_bot():
     try:
@@ -52,7 +53,7 @@ def setup_vector_search(texts, embeddings):
     return docsearch
 
 def setup_qa_model(docsearch):
-    qa = VectorDBQA.from_chain_type(llm=OpenAI(), chain_type="stuff", vectorstore=docsearch)
+    qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=docsearch.as_retriever())
     return qa
 
 def setup_human_message_prompt():
