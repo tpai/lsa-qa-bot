@@ -35,7 +35,7 @@ def setup_embeddings():
     return embeddings
 
 def setup_vector_search(texts, embeddings):
-    docsearch = Chroma.from_documents(texts, embeddings, persist_directory="./cache")
+    docsearch = Chroma.from_documents(texts, embeddings, persist_directory="./chroma-data")
     return docsearch
 
 def setup_qa_model(docsearch):
