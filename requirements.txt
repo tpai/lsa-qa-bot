@@ -1,2 +1,5 @@
-Flask>=2.2.2
 langchain
+openai
+telegram
+ckiptagger[tf,gdown]
+tiktoken
