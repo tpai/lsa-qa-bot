@@ -2,15 +2,20 @@ FROM python:3.8
 
 # Install Python packages
 RUN pip install --upgrade pip
+RUN pip install --no-cache-dir telegram python-telegram-bot
 RUN pip install --no-cache-dir unstructured chromadb tiktoken
 RUN pip install --no-cache-dir langchain openai
-RUN pip install --no-cache-dir jupyterlab jupyterlab-lsp python-lsp-server
 
 # Set working directory
 WORKDIR /app
 
-# Expose port
-EXPOSE 5000
+COPY chroma-data chroma-data
+COPY chroma_logs.log chroma_logs.log
+COPY files/cut/labor_standard_act_zhtw.txt files/cut/labor_standard_act_zhtw.txt
+COPY qa.py qa.py
+
+ARG OPENAI_API_KEY
+ARG TELEGRAM_TOKEN
 
 # Run Jupyter
-CMD ["python", "qa.py"]
+CMD ["python", "-u", "qa.py"]
