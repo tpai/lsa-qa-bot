@@ -1,3 +1,5 @@
+__pycache__
+data/
 .chroma
 chroma_logs.log
 .ipynb_checkpoints
