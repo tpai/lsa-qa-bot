@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 from ckiptagger import WS, construct_dictionary
 
 ws = WS("./data")
@@ -31,7 +32,7 @@ def convert_arabic_to_chinese(num):
                 chinese_num += digits[digit] + unit
     return chinese_num
 
-no_dict = {}
+no_dict = {"前項": 1}
 for i in range(1, 201):
     no_dict[f"第{convert_arabic_to_chinese(i)}章"] = 1
     no_dict[f"第{convert_arabic_to_chinese(i)}條"] = 1
@@ -48,6 +49,7 @@ article_item_map = {}
 import re
 def replace_article(string):
     global article_str
+    global replace_str
     while True:
         article_search = re.search(r'第\s(\d+之?\d?)\s條', string)
         if article_search is not None:
@@ -55,7 +57,20 @@ def replace_article(string):
             article_str = f'第{article_num}條'
             article_str = re.sub(r'\d+', lambda x: convert_arabic_to_chinese(int(x.group())), article_str)
             article_item_map[article_str] = 2
+            replace_str = article_str
             return article_str
+
+        sub_item_search = re.search(r'^([一二三四五六七八九零十百千萬]+)、', string)
+        if sub_item_search is not None:
+            sub_item_index = sub_item_search.start()
+            sub_item_str = sub_item_search.group()
+            sub_item_num = sub_item_search.group(1)
+            sub_replace_str=f'{replace_str}第{sub_item_num}款'
+            sub_replace_str = re.sub(r'^[一二三四五六七八九零十百千萬]+、', lambda x: convert_arabic_to_chinese(int(x.group())), sub_replace_str)
+            article_item_map[sub_replace_str] = 2
+            string = string[:sub_item_index] + sub_replace_str + string[sub_item_index+len(sub_item_str):];
+            return string
+
         item_search = re.search(r'(\d+)\s{2}', string)
         if item_search is None:
             return string
@@ -68,7 +83,7 @@ def replace_article(string):
         string = string[:item_index] + replace_str + string[item_index+len(item_str):]
         return string
 
-files = ['labor_standard_act_zhtw.txt']
+files = ['labor_standard_act_zhtw.txt', 'labor_pension_act_zhtw.txt']
 for file in files:
     my_file=f"./files/{file}"
     cut_file=f"./files/cut/{file}"
@@ -84,7 +99,8 @@ for file in files:
             cut_data = " ".join([w for w in output[0]])
             with open(cut_file, 'a') as f:
                 f.write('\n')
+                if re.match(r'^第.*條$', cut_data):
+                    f.write('\n')
                 f.write(cut_data)
                 f.close()
-
 del ws
