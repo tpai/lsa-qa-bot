@@ -1,6 +1,7 @@
 __pycache__
 data/
 .chroma
+chroma-data/
 chroma_logs.log
 .ipynb_checkpoints
 .virtual_documents
