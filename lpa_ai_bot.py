@@ -22,7 +22,7 @@ def setup_chatgpt():
     return chat
 
 def load_file():
-    with open('./files/cut/labor_standard_act_zhtw.txt') as f:
+    with open('./files/cut/labor_pension_act_zhtw.txt') as f:
         file = f.read()
     print('file loaded')
     return file
@@ -37,8 +37,8 @@ def setup_embeddings():
     return embeddings
 
 def setup_vector_search(texts, embeddings):
-    docsearch = Chroma(embedding_function=embeddings, persist_directory="./chroma-data")
-    # docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": str(i)} for i in range(len(texts))], persist_directory="./chroma-data")
+    docsearch = Chroma(embedding_function=embeddings, persist_directory="./lpa-data")
+    # docsearch = Chroma.from_texts(texts, embeddings, metadatas=[{"source": f'lpa-{str(i)}'} for i in range(len(texts))], persist_directory="./lpa-data")
     docsearch.persist()
     return docsearch
 
@@ -47,7 +47,7 @@ def setup_qa_model(docsearch):
     return qa
 
 def get_answer(q, qa, prefix='', suffix=''):
-    q_map = {'勞基法': '勞動基準法', '老闆': '雇主', '員工': '勞工', '薪水': '工資', '工時': '工作時間', '特休': '特別休假', '未成年': '童工', '工讀生': '技術生', '年終': '年度終了', '勞退': '勞工退休金', '懷孕': '妊娠', '曠職': '曠工'}
+    q_map = {'勞基法': '勞動基準法', '老闆': '雇主', '員工': '勞工', '薪水': '工資', '年終': '年度終了', '勞退': '勞工退休金'}
     for key, value in q_map.items():
         q = q.replace(key, value)
     q_fixed = f"{prefix}{q}{suffix}"
@@ -58,13 +58,13 @@ def get_answer(q, qa, prefix='', suffix=''):
 
 async def start(update, context):
     try:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="此機器人僅供問答而非聊天，因此不能連續發問，每個問題都是獨立的。\n你可以嘗試詢問「老闆欠薪」或「特休怎麼算」。")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="此機器人僅供問答而非聊天，因此不能連續發問，每個問題都是獨立的。\n你可以嘗試詢問「退休金領取方式有幾種？」。")
     except Exception as e:
         print(e)
 
 async def law(update, context):
     try:
-        a = get_answer(update.message.text, qa, '', ' 請簡單回答。')
+        a = get_answer(update.message.text, qa, '', ' 請簡單回答')
         await context.bot.send_message(chat_id=update.effective_chat.id, text=a)
     except Exception as e:
         print(e)
@@ -82,7 +82,7 @@ async def law(update, context):
 def predefined_handler(prompt):
     async def predefined(update, context):
         try:
-            a = get_answer(prompt, qa, '', ' 請簡單回答。')
+            a = get_answer(prompt, qa, '', ' 請簡單回答')
             await context.bot.send_message(chat_id=update.effective_chat.id, text=a)
         except Exception as e:
             print(e)
@@ -103,21 +103,12 @@ def init_tg_bot():
         application = ApplicationBuilder().token(os.environ['TELEGRAM_TOKEN']).build()
         start_handler = CommandHandler('start', start)
         law_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), law)
-        yearendbonus_handler = CommandHandler('yearendbonus', predefined_handler('公司 盈餘 獎金 法條'))
-        annualleave_handler = CommandHandler('annualleave', predefined_handler('特休怎麼算'))
-        layoffwarning_handler = CommandHandler('layoffwarning', predefined_handler('不定期契約 終止勞動 預告期 法條'))
-        severancepay_handler = CommandHandler('severancepay', predefined_handler('資遣費怎麼算'))
-        retirement_handler = CommandHandler('retirement', predefined_handler('工作多久可以退休 法條'))
-        maxovertime_handler = CommandHandler('maxovertime', predefined_handler('延長工時不能超過多久 法條'))
-        overtimepay_handler = CommandHandler('overtimepay', predefined_handler('加班加給怎麼算'))
-        workabsent_handler = CommandHandler('workabsent', predefined_handler('曠職 法條'))
-        companybroke_handler = CommandHandler('companybroke', predefined_handler('公司破產 積欠工資 法條'))
+        retirepayment_handler = CommandHandler('retirepayment', predefined_handler('退休金領取方式的法條'))
+        pensionportion_handler = CommandHandler('pensionportion', predefined_handler('老闆應提繳多少比例之退休金 法條'))
         application.add_handler(start_handler)
         application.add_handler(law_handler)
         application.add_handlers([
-            layoffwarning_handler, yearendbonus_handler, annualleave_handler,
-            severancepay_handler, retirement_handler, maxovertime_handler,
-            overtimepay_handler, workabsent_handler, companybroke_handler
+            retirepayment_handler, pensionportion_handler
         ])
         application.run_polling()
     except Exception as e:
