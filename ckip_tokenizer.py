@@ -41,8 +41,10 @@ for i in range(1, 201):
     no_dict[f"{convert_arabic_to_chinese(i)}年"] = 1
     no_dict[f"{convert_arabic_to_chinese(i)}個月"] = 1
     no_dict[f"{convert_arabic_to_chinese(i)}星期"] = 1
+    no_dict[f"{convert_arabic_to_chinese(i)}日"] = 1
     no_dict[f"{convert_arabic_to_chinese(i)}小時"] = 1
     no_dict[f"{convert_arabic_to_chinese(i)}分鐘"] = 1
+    no_dict[f"{convert_arabic_to_chinese(i)}次"] = 1
 
 article_item_map = {}
 
@@ -97,6 +99,10 @@ for file in files:
             file_content = remove_special_characters(data)
             output=ws([file_content], coerce_dictionary=construct_dictionary({**no_dict, **article_item_map}))
             cut_data = " ".join([w for w in output[0]])
+            if file == 'labor_standard_act_zhtw.txt' and '本 法' in cut_data:
+                cut_data = cut_data.replace('本 法', '勞動基準法')
+            if file == 'labor_pension_act_zhtw.txt' and '本 條例' in cut_data:
+                cut_data = cut_data.replace('本 條例', '勞工退休金條例')
             with open(cut_file, 'a') as f:
                 f.write('\n')
                 if re.match(r'^第.*條$', cut_data):
