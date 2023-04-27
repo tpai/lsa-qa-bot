@@ -3,8 +3,8 @@
 
 # Import necessary libraries
 import os
-os.environ.get('OPENAI_API_KEY', '...')
-os.environ.get('TELEGRAM_TOKEN', '...')
+OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY', '...')
+TELEGRAM_TOKEN=os.environ.get('TELEGRAM_TOKEN', '...')
 
 import telegram
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
@@ -12,13 +12,12 @@ from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBui
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter
-from langchain import OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
 from langchain.document_loaders import DirectoryLoader
 from langchain.chains import RetrievalQA
 
 def setup_chatgpt():
-    chat=ChatOpenAI(model_name="gpt-4",temperature=0)
+    chat=OpenAI(model_name="gpt-4",temperature=0)
     return chat
 
 def load_file():
@@ -42,8 +41,8 @@ def setup_vector_search(texts, embeddings):
     docsearch.persist()
     return docsearch
 
-def setup_qa_model(docsearch):
-    qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=docsearch.as_retriever(search_kwargs={"k": 2}))
+def setup_qa_model(llm, docsearch):
+    qa = RetrievalQA.from_llm(llm=llm, retriever=docsearch.as_retriever(search_kwargs={"k": 2}))
     return qa
 
 def get_answer(q, qa, prefix='', suffix=''):
@@ -100,7 +99,7 @@ def predefined_handler(prompt):
 
 def init_tg_bot():
     try:
-        application = ApplicationBuilder().token(os.environ['TELEGRAM_TOKEN']).build()
+        application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
         start_handler = CommandHandler('start', start)
         law_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), law)
         yearendbonus_handler = CommandHandler('yearendbonus', predefined_handler('公司 盈餘 獎金 法條'))
@@ -124,11 +123,12 @@ def init_tg_bot():
         print(e)
         
 chat = setup_chatgpt()
+llm = setup_chatgpt()
 file = load_file()
 texts = split_texts(file)
 embeddings = setup_embeddings()
 docsearch = setup_vector_search(texts, embeddings)
-qa = setup_qa_model(docsearch)
+qa = setup_qa_model(llm, docsearch)
 
 # Initialize Telegram bot
 init_tg_bot()
