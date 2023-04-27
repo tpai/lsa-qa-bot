@@ -3,8 +3,8 @@
 
 # Import necessary libraries
 import os
-os.environ['OPENAI_API_KEY'] = '...'
-os.environ['TELEGRAM_TOKEN'] = '...'
+os.environ.get('OPENAI_API_KEY', '...')
+os.environ.get('TELEGRAM_TOKEN', '...')
 
 import telegram
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
