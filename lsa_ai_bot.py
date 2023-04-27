@@ -6,6 +6,11 @@ import os
 OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY', '...')
 TELEGRAM_TOKEN=os.environ.get('TELEGRAM_TOKEN', '...')
 
+# enable memory cache
+import langchain
+from langchain.cache import InMemoryCache
+langchain.llm_cache = InMemoryCache()
+
 import telegram
 from telegram.ext import CommandHandler, MessageHandler, filters, ApplicationBuilder
 
