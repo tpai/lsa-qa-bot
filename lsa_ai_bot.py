@@ -22,7 +22,7 @@ from langchain.document_loaders import DirectoryLoader
 from langchain.chains import RetrievalQA
 
 def setup_chatgpt():
-    chat=OpenAI(model_name="gpt-4",temperature=0)
+    chat=OpenAI(model_name="gpt-3.5-turbo",temperature=0)
     return chat
 
 def load_file():
@@ -68,7 +68,8 @@ async def start(update, context):
 
 async def law(update, context):
     try:
-        a = get_answer(update.message.text, qa, '', ' 請簡單回答')
+        await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="TYPING")
+        a = get_answer(update.message.text, qa, '', ' 請簡單說明條文')
         await context.bot.send_message(chat_id=update.effective_chat.id, text=a)
     except Exception as e:
         print(e)
@@ -86,7 +87,8 @@ async def law(update, context):
 def predefined_handler(prompt):
     async def predefined(update, context):
         try:
-            a = get_answer(prompt, qa, '', ' 請簡單回答')
+            await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="TYPING")
+            a = get_answer(prompt, qa, '', ' 請簡單說明條文')
             await context.bot.send_message(chat_id=update.effective_chat.id, text=a)
         except Exception as e:
             print(e)
